@@ -25,9 +25,22 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
 
 // router that creates a new course
 router.post('/courses', asyncHandler(async (req, res) => {
+    let {
+        title,
+        description,
+        estimatedTime,
+        materialsNeeded,
+        userId,
+    } = req.body;
     try {
-        const course = await Courses.create(req.body);
-        res.location(`/courses/${course.id}`);
+        await Courses.create({
+            title,
+            description,
+            estimatedTime,
+            materialsNeeded,
+            userId,
+        });
+        // res.location(`/courses/`);
         res.status(201).json({ "message": "Course successfully created" });
     } catch (error) {
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
