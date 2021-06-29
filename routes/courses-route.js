@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { asyncHandler } = require('../middleware/async-handler');
-const { Courses } = require('../models');
+const { Users ,Courses } = require('../models');
 const { authenticateUser } = require('../middleware/auth-user');
 
 // construct a router instance
@@ -16,7 +16,8 @@ router.get('/courses', asyncHandler(async (req, res) => {
 
 // router that will return the corresponding course
 router.get('/courses/:id', asyncHandler(async (req, res) => {
-    const course = await Courses.findByPk(req.params.id);
+    const courseId = req.params.id;
+    const course = await Courses.findByPk(courseId);
     if(course) {
         res.json(course);
     } else {
@@ -31,7 +32,6 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
         description,
         estimatedTime,
         materialsNeeded,
-        userId,
     } = req.body;
     try {
         await Courses.create({
@@ -39,7 +39,7 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
             description,
             estimatedTime,
             materialsNeeded,
-            userId,
+            userId: user.userId,
         });
         // res.location(`/courses/`);
         res.status(201).json({ "message": "Course successfully created" });
@@ -55,6 +55,8 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
 
 // router that updates the corresponding course
 router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+    const user = req.currentUser;
+    const courseId = req.params.id;
     let {
         title,
         description,
@@ -62,14 +64,20 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
         materialsNeeded,
     } = req.body;
     try {
-        const course = await Courses.findByPk(req.params.id);
-        await course.update({
-            title,
-            description,
-            estimatedTime,
-            materialsNeeded,
-        });
-        res.status(204).json({ "message": "Course successfully updated" });
+        const course = await Courses.findByPk(courseId);
+        if (user.id === course.userId) {
+            await course.update({
+                title,
+                description,
+                estimatedTime,
+                materialsNeeded,
+            });
+            res.status(204).json({ message: "Course successfully updated" });
+        } else {
+            res.status(403).json({
+                message: "This course is not yours"
+            });
+        }
     } catch (error) {
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
           const errors = error.errors.map(err => err.message);
@@ -82,9 +90,19 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
 
 // router that deletes the corresponding course
 router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+    const user = req.currentUser;
+    const courseId = req.params.id;
     try {
-        await Courses.destroy({where: {id: req.params.id}});
-        res.status(204).json({ "message": "Course successfully deleted" });
+        const course = await Courses.findByPk(courseId);
+        if (user.id === course.userId) {
+            await course.destroy();
+            res.status(204).json({ "message": "Course successfully deleted" });
+        } else {
+            res.status(403).json({
+                status: 'Unauthorized',
+                message: 'Course is not yours',
+            });
+        }
     } catch (error) {
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
           const errors = error.errors.map(err => err.message);

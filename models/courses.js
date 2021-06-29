@@ -35,7 +35,10 @@ module.exports = (sequelize) => {
         materialsNeeded: {
             type: DataTypes.STRING,
         },
-    }, { sequelize });
+    }, { 
+        sequelize,
+        timestamps: false,
+     });
 
     Courses.associate = (models) => {
         Courses.belongsTo(models.Users);
