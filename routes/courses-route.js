@@ -3,6 +3,7 @@
 const express = require('express');
 const { asyncHandler } = require('../middleware/async-handler');
 const { Courses } = require('../models');
+const { authenticateUser } = require('../middleware/auth-user');
 
 // construct a router instance
 const router = express.Router();
@@ -24,7 +25,7 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
 }));
 
 // router that creates a new course
-router.post('/courses', asyncHandler(async (req, res) => {
+router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
     let {
         title,
         description,
@@ -53,7 +54,7 @@ router.post('/courses', asyncHandler(async (req, res) => {
 }));
 
 // router that updates the corresponding course
-router.put('/courses/:id', asyncHandler(async (req, res) => {
+router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
     let {
         title,
         description,
@@ -80,7 +81,7 @@ router.put('/courses/:id', asyncHandler(async (req, res) => {
 }));
 
 // router that deletes the corresponding course
-router.delete('/courses/:id', asyncHandler(async (req, res) => {
+router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
     try {
         await Courses.destroy({where: {id: req.params.id}});
         res.status(204).json({ "message": "Course successfully deleted" });

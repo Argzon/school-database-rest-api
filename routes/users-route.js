@@ -3,14 +3,15 @@
 const express = require('express');
 const { asyncHandler } = require('../middleware/async-handler');
 const { Users } = require('../models');
+const { authenticateUser } = require('../middleware/auth-user');
 
 // construct a router instance
 const router = express.Router();
 
 // router that returns a list of users
-router.get('/users', asyncHandler(async (req, res) => {
-    let users = await Users.findAll();
-    res.json(users);
+router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
+  let users = await Users.findAll();
+  res.json(users);
 }));
 
 // router that creates a new user
