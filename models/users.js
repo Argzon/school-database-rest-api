@@ -18,6 +18,10 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING,
         }
     }, { sequelize });
-    
+
+    Users.associate = (models) => {
+        Users.hasMany(models.Courses);
+    }
+
     return Users;
 }
