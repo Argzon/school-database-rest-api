@@ -7,20 +7,77 @@ const { Courses } = require('../models');
 // construct a router instance
 const router = express.Router();
 
-// router that returns a list of users
-router.get('/users', asyncHandler(async (req, res) => {
-    let users = await Users.findAll();
-    res.json(users);
+// router that returns a list of courses
+router.get('/courses', asyncHandler(async (req, res) => {
+    let courses = await Courses.findAll();
+    res.json(courses);
 }));
 
-// router that creates a new user
-router.post('/users', asyncHandler(async (req, res) => {
+// router that will return the corresponding course
+router.get('/courses/:id', asyncHandler(async (req, res) => {
+    const course = await Courses.findByPk(req.params.id);
+    if(course) {
+        res.json(course);
+    } else {
+        res.status(404).json({ message: 'Course not found!' });
+    }
+}));
+
+// router that creates a new course
+router.post('/courses', asyncHandler(async (req, res) => {
     try {
-        await Users.create(req.body);
-        res.location('/');
-        res.status(201).json({ "message": "Account successfully created" });
-    } catch (err) {
-        console.log('ERROR: ' + err.name);
+        const course = await Courses.create(req.body);
+        res.location(`/courses/${course.id}`);
+        res.status(201).json({ "message": "Course successfully created" });
+    } catch (error) {
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+          const errors = error.errors.map(err => err.message);
+          res.status(400).json({ errors });   
+        } else {
+          throw error;
+        }
+    }
+}));
+
+// router that updates the corresponding course
+router.put('/courses/:id', asyncHandler(async (req, res) => {
+    let {
+        title,
+        description,
+        estimatedTime,
+        materialsNeeded,
+    } = req.body;
+    try {
+        const course = await Courses.findByPk(req.params.id);
+        await course.update({
+            title,
+            description,
+            estimatedTime,
+            materialsNeeded,
+        });
+        res.status(204).json({ "message": "Course successfully updated" });
+    } catch (error) {
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+          const errors = error.errors.map(err => err.message);
+          res.status(400).json({ errors });   
+        } else {
+          throw error;
+        }
+    }
+}));
+
+// router that deletes the corresponding course
+router.delete('/courses/:id', asyncHandler(async (req, res) => {
+    try {
+        await Courses.destroy({where: {id: req.params.id}});
+        res.status(204).json({ "message": "Course successfully deleted" });
+    } catch (error) {
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+          const errors = error.errors.map(err => err.message);
+          res.status(400).json({ errors });   
+        } else {
+          throw error;
+        }
     }
 }));
 
