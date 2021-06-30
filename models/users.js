@@ -80,7 +80,6 @@ module.exports = (sequelize) => {
     }, { 
         sequelize,
         modelName: 'Users',
-        timestamps: false,
         });
 
     Users.afterValidate((user) => {
