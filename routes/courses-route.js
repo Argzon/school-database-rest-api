@@ -10,13 +10,19 @@ const router = express.Router();
 
 // router that returns a list of courses
 router.get('/courses', asyncHandler(async (req, res) => {
-    let courses = await Courses.findAll();
+    let courses = await Courses.findAll({
+        attributes: { exclude: ['createdAt', 'updatedAt'] }
+    });
     res.json(courses);
 }));
 
 // router that will return the corresponding course
 router.get('/courses/:id', asyncHandler(async (req, res) => {
-    const course = await Courses.findByPk(req.params.id);
+    const course = await Courses.findOne({
+        where: {id: req.params.id},
+        attributes: { exclude: ['createdAt', 'updatedAt'] }
+    })
+    // const course = await Courses.findByPk(req.params.id);
     if(course) {
         res.json(course);
     } else {
