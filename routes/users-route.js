@@ -11,7 +11,12 @@ const router = express.Router();
 // router that returns a list of users
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
   let user = await req.currentUser;
-  res.json(user);
+  const aUser = await Users.findOne({
+    where: {id: user.id},
+    attributes: { exclude: ['createdAt', 'updatedAt', 'password'] }
+  })
+  console.log(user.id);
+  res.json(aUser);
 }));
 
 // router that creates a new user
