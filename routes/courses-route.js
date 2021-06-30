@@ -80,7 +80,7 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
             res.status(204).json({ "message": "Course successfully updated" });
         } else {
             res.status(403).json({
-                message: "This course is not yours"
+                message: "You do not have privileges to edit this course"
             });
         }
     } catch (error) {
@@ -103,7 +103,7 @@ router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) =>
             res.status(204).json({ "message": "Course successfully deleted" });
         } else {
             res.status(403).json({
-                message: "This course is not yours"
+                message: "You do not have privileges to edit this course"
             });
         }
     } catch (error) {
