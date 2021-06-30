@@ -11,15 +11,6 @@ module.exports = (sequelize) => {
                 foreignKey: {
                     type: DataTypes.INTEGER,
                     name: 'userId',
-                    allowNull: false,
-                    validate: {
-                        notNull: {
-                            msg: 'userId is a required field.',
-                        },
-                        notEmpty: {
-                            msg: 'userId can not be empty.',
-                        }
-                    }
                 },
                 as: 'courses',
             });
