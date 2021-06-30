@@ -69,13 +69,20 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
     } = req.body;
     try {
         const course = await Courses.findByPk(req.params.id);
-        await course.update({
-            title,
-            description,
-            estimatedTime,
-            materialsNeeded,
-        });
-        res.status(204).json({ "message": "Course successfully updated" });
+        const user = req.currentUser;
+        if (user.id === course.userId) {
+            await course.update({
+                title,
+                description,
+                estimatedTime,
+                materialsNeeded,
+            });
+            res.status(204).json({ "message": "Course successfully updated" });
+        } else {
+            res.status(403).json({
+                message: "This course is not yours"
+            });
+        }
     } catch (error) {
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
           const errors = error.errors.map(err => err.message);
@@ -89,8 +96,16 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
 // router that deletes the corresponding course
 router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
     try {
-        await Courses.destroy({where: {id: req.params.id}});
-        res.status(204).json({ "message": "Course successfully deleted" });
+        const course = await Courses.findByPk(req.params.id);
+        const user = req.currentUser;
+        if (user.id === course.userId) {
+            await Courses.destroy({where: {id: req.params.id}});
+            res.status(204).json({ "message": "Course successfully deleted" });
+        } else {
+            res.status(403).json({
+                message: "This course is not yours"
+            });
+        }
     } catch (error) {
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
           const errors = error.errors.map(err => err.message);
