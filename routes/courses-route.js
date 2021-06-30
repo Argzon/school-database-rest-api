@@ -105,7 +105,7 @@ router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) =>
             res.status(204).json({ "message": "Course successfully deleted" });
         } else {
             res.status(403).json({
-                message: "You do not have privileges to edit this course"
+                message: "You do not have privileges to delete this course"
             });
         }
     } catch (error) {
