@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { asyncHandler } = require('../middleware/async-handler');
-const { Courses } = require('../models');
+const { Users, Courses } = require('../models');
 const { authenticateUser } = require('../middleware/auth-user');
 
 // construct a router instance
@@ -11,7 +11,8 @@ const router = express.Router();
 // router that returns a list of courses
 router.get('/courses', asyncHandler(async (req, res) => {
     let courses = await Courses.findAll({
-        attributes: { exclude: ['createdAt', 'updatedAt'] }
+        attributes: { exclude: ['createdAt', 'updatedAt'] },
+        include: { model: Users, attributes: ['id', 'firstName', 'lastName', 'emailAddress'] }
     });
     res.json(courses);
 }));
@@ -20,7 +21,8 @@ router.get('/courses', asyncHandler(async (req, res) => {
 router.get('/courses/:id', asyncHandler(async (req, res) => {
     const course = await Courses.findOne({
         where: {id: req.params.id},
-        attributes: { exclude: ['createdAt', 'updatedAt'] }
+        attributes: { exclude: ['createdAt', 'updatedAt'] },
+        include: { model: Users, attributes: ['id', 'firstName', 'lastName', 'emailAddress'] }
     })
     // const course = await Courses.findByPk(req.params.id);
     if(course) {
