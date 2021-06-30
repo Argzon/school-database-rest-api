@@ -10,8 +10,8 @@ const router = express.Router();
 
 // router that returns a list of users
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
-  let users = await Users.findAll();
-  res.json(users);
+  let user = await req.currentUser;
+  res.json(user);
 }));
 
 // router that creates a new user
